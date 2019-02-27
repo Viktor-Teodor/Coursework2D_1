@@ -56,7 +56,7 @@ type Branch = [(Int,Int)]
 
 badNodesList::[Node]
 -- This is your list of bad nodes. You should experimet with it to make sure your algorithm covers different cases.
-badNodesList = []
+badNodesList = [(1,2),(3,2),(4,4),(4,5)]
 
 -- The maximum depth this search can reach
 -- TODO: Fill in the maximum depth and justify your choice
@@ -76,7 +76,9 @@ maxDepth=0
 next::Branch -> [Branch]
 next [] =  []
 next branch = let line=fst(node)
-                  col=snd(node) in [(line+x,col+y):branch| x<- [-1,0,1], y<-[-1,0,1], line+x >=1, line+x<=3, col+y<=3, col+y>=1, not((line+x,line+y) `elem` badNodesList), not((line+x,line+y) `elem` branch)]
+                  col=snd(node) in [(line+x,col+y):branch| x<-[-1,0,1],y<-[-1,0,1], line+x >=1, line+x<=gridLength_search, col+y<=gridWidth_search, col+y>=1,x==0 || y==0,
+                  not((line+x,line+y) `elem` badNodesList),
+                  not((line+x,line+y) `elem` branch)]
                   where node = head(branch)
 
 
@@ -93,12 +95,12 @@ checkArrival destination curNode = fst(destination)== fst(curNode) && snd(destin
 -- The function should search nodes using a breadth first search order.
 
 breadthFirstSearch::Node->(Branch -> [Branch])->[Branch]->[Node]->Maybe Branch
-
 breadthFirstSearch destination next branches exploredList
+  |branches == [] = Nothing
   |checkArrival destination (head (head branches)) = if not (null (head branches)) then Just (head branches) else Nothing
-  |let expansion = next (head branches) in null expansion = Nothing
-  |otherwise = breadthFirstSearch destination next (tail (branches ++ filter(\aux -> notElem (head aux) exploredList) (next (head branches)))) (head (head branches) :exploredList)
-
+  |otherwise = breadthFirstSearch destination next ((tail branches ) ++
+  (filter (\x-> head x `notElem` exploredList) next(head branches)))
+  (head (head branches) :exploredList)
 
 -- | Depth-First Search
 -- The depthFirstSearch function is similiar to the breadthFirstSearch function,
